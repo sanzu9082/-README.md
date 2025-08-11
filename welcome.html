@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Looner Dashboard Copy</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f6f8fa;
+      color: #24292f;
+    }
+    .navbar {
+      background: #24292f;
+      color: #fff;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      box-shadow: 0 1px 0 #eaecef;
+    }
+    .navbar .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-right: 20px;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .navbar .search-bar {
+      flex: 1;
+      margin-left: 20px;
+      background: #222;
+      border: none;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+      max-width: 350px;
+    }
+    .navbar .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin-left: 24px;
+      border: 2px solid #fff;
+      object-fit: cover;
+      cursor: pointer;
+      transition: box-shadow .2s;
+    }
+    .chat-btn {
+      position: fixed;
+      bottom: 34px;
+      right: 38px;
+      z-index: 100;
+      background: #0969da;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.25rem;
+      font-weight: bold;
+      padding: 16px 32px;
+      box-shadow: 0 4px 16px #24292f22;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .chat-btn:hover {
+      background: #0550ae;
+    }
+    .chat-window-bg {
+      display: none;
+      position: fixed;
+      z-index: 120;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0005;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+    .chat-window {
+      background: #fff;
+      width: 370px;
+      max-width: 96vw;
+      height: 410px;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 8px 32px #0550ae33;
+      margin: 0 28px 20px 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .chat-header {
+      background: #0969da;
+      color: #fff;
+      padding: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-header .close-chat-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 18px;
+      background: #f6f8fa;
+      overflow-y: auto;
+      font-size: 1rem;
+    }
+    .chat-msg {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .chat-msg.robot .msg-bubble {
+      background: #e1eeff;
+      color: #24292f;
+      border-radius: 14px 14px 14px 4px;
+      padding: 10px 14px;
+      max-width: 70%;
+    }
+    .chat-msg.user .msg-bubble {
+      background: #d1f7c4;
+      color: #24292f;
+      border-radius: 14px 14px 4px 14px;
+      padding: 10px 14px;
+      max-width: 70%;
+      margin-left: auto;
+    }
+    .chat-msg.robot .avatar,
+    .chat-msg.user .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      object-fit: cover;
+    }
+    .chat-input-row {
+      display: flex;
+      padding: 14px 18px;
+      border-top: 1px solid #eaecef;
+      background: #fff;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 7px;
+      border: 1px solid #d0d7de;
+      outline: none;
+    }
+    .send-chat-btn {
+      background: #0969da;
+      color: #fff;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 7px;
+      padding: 0 18px;
+      margin-left: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .send-chat-btn:hover {
+      background: #0550ae;
+    }
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 250px;
+      height: calc(100% - 56px);
+      background: #fff;
+      border-right: 1px solid #eaecef;
+      padding: 32px 22px 0 22px;
+      box-sizing: border-box;
+    }
+    .sidebar .profile-block {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .sidebar .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid #24292f;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    .sidebar .profile-details {
+      flex: 1;
+    }
+    .sidebar .username {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+    }
+    .sidebar .edit-btn {
+      padding: 4px 12px;
+      font-size: 0.93rem;
+      background: #2ea44f;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sidebar .edit-btn:hover {
+      background: #22863a;
+    }
+    .sidebar nav {
+      margin-top: 36px;
+    }
+    .sidebar nav button {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      color: #24292f;
+      font-size: 1rem;
+      text-align: left;
+      padding: 10px 0;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .sidebar nav button.active,
+    .sidebar nav button:hover {
+      background: #f6f8fa;
+      font-weight: 600;
+    }
+    .main {
+      margin-left: 250px;
+      padding: 38px 32px;
+      max-width: 900px;
+      min-height: 80vh;
+    }
+    .section-title {
+      font-size: 1.38rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #24292f;
+    }
+    .repo-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .repo-card {
+      background: #fff;
+      border: 1px solid #eaecef;
+      border-radius: 8px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 4px #eaecef55;
+      margin-bottom: 12px;
+    }
+    .repo-card h3 {
+      font-size: 1.1rem;
+      color: #0969da;
+      margin: 0 0 8px 0;
+      font-weight: 700;
+    }
+    .repo-card p {
+      font-size: 0.97rem;
+      color: #57606a;
+      margin: 0;
+    }
+    .project-card {
+      background: #fff;
+      border: 1px solid #eaecef;
+      border-radius: 8px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 4px #eaecef55;
+      margin-bottom: 12px;
+    }
+    .star-card {
+      background: #fff;
+      border: 1px solid #eaecef;
+      border-radius: 8px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 4px #eaecef55;
+      margin-bottom: 12px;
+    }
+    .settings-form label {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #24292f;
+      display: block;
+    }
+    .settings-form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #d0d7de;
+      box-sizing: border-box;
+    }
+    .settings-form .save-btn {
+      width: 100%;
+      padding: 12px 0;
+      font-size: 1.05rem;
+      background: #0969da;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .settings-form .save-btn:hover {
+      background: #0550ae;
+    }
+    .edit-modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: #0008;
+      justify-content: center;
+      align-items: center;
+    }
+    .edit-modal {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px #24292f22;
+      padding: 36px 32px;
+      min-width: 320px;
+      max-width: 90vw;
+      text-align: left;
+    }
+    .edit-modal label {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #24292f;
+      display: block;
+    }
+    .edit-modal input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #d0d7de;
+      box-sizing: border-box;
+    }
+    .edit-modal .save-btn {
+      width: 100%;
+      padding: 12px 0;
+      font-size: 1.05rem;
+      background: #0969da;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .edit-modal .save-btn:hover {
+      background: #0550ae;
+    }
+    .edit-modal .close-btn {
+      background: none;
+      border: none;
+      color: #57606a;
+      font-size: 1rem;
+      cursor: pointer;
+      float: right;
+      margin-top: -12px;
+      margin-right: -8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <a href="#" class="logo">looner</a>
+    <input type="text" class="search-bar" placeholder="Search looner">
+    <img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" id="topAvatar" class="avatar" alt="Avatar">
+  </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="profile-block">
+      <img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" alt="Profile" class="profile-avatar" id="profileAvatar">
+      <div class="profile-details">
+        <div class="username" id="profileName">YourUsername</div>
+        <button class="edit-btn" id="editProfileBtn">Edit Profile</button>
+      </div>
+    </div>
+    <nav>
+      <button id="btnOverview" class="active">Overview</button>
+      <button id="btnRepositories">Repositories</button>
+      <button id="btnProjects">Projects</button>
+      <button id="btnStars">Stars</button>
+      <button id="btnSettings">Settings</button>
+    </nav>
+  </div>
+  <!-- Main Content -->
+  <div class="main" id="mainContent">
+    <!-- Overview Section -->
+    <div id="sectionOverview">
+      <div class="section-title">Welcome to looner, <span id="overviewName">YourUsername</span>!</div>
+      <p>This is your dashboard overview. You can see your profile, repositories, and more.</p>
+      <ul>
+        <li>Edit your profile by clicking your avatar or the button on the left.</li>
+        <li>Navigate using the sidebar to explore your content.</li>
+      </ul>
+    </div>
+    <!-- Repositories Section -->
+    <div id="sectionRepositories" style="display:none;">
+      <div class="section-title">Your Repositories</div>
+      <div class="repo-list">
+        <div class="repo-card">
+          <h3>my-first-repo</h3>
+          <p>A demo repository for testing.</p>
+        </div>
+        <div class="repo-card">
+          <h3>portfolio-site</h3>
+          <p>Your portfolio made with HTML/CSS.</p>
+        </div>
+        <div class="repo-card">
+          <h3>fun-project</h3>
+          <p>Just a fun experiment with JavaScript.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Projects Section -->
+    <div id="sectionProjects" style="display:none;">
+      <div class="section-title">Your Projects</div>
+      <div class="project-card">
+        <h3>Website Redesign</h3>
+        <p>Work in progress: Updating landing page and blog.</p>
+      </div>
+      <div class="project-card">
+        <h3>Mobile App</h3>
+        <p>Planning new features for iOS and Android.</p>
+      </div>
+    </div>
+    <!-- Stars Section -->
+    <div id="sectionStars" style="display:none;">
+      <div class="section-title">Starred Repositories</div>
+      <div class="star-card">
+        <h3>awesome-tools</h3>
+        <p>A collection of great developer tools.</p>
+      </div>
+      <div class="star-card">
+        <h3>css-wizardry</h3>
+        <p>Tips and tricks for clean CSS.</p>
+      </div>
+    </div>
+    <!-- Settings Section -->
+    <div id="sectionSettings" style="display:none;">
+      <div class="section-title">Profile Settings</div>
+      <form class="settings-form" id="settingsForm">
+        <label for="settingsName">Change Username:</label>
+        <input type="text" id="settingsName" value="YourUsername">
+        <label for="settingsPic">Change Avatar URL:</label>
+        <input type="text" id="settingsPic" value="https://avatars.githubusercontent.com/u/9919?s=200&v=4">
+        <button type="submit" class="save-btn">Save Settings</button>
+      </form>
+    </div>
+  </div>
+  <!-- Chat Robot Button -->
+  <button class="chat-btn" id="openChatBtn">🤖 Chat with Robot</button>
+  <!-- Chat Robot Popup -->
+  <div class="chat-window-bg" id="chatBg">
+    <div class="chat-window">
+      <div class="chat-header">
+        <span>Robot Chat</span>
+        <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg robot">
+          <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="Robot" class="avatar">
+          <div class="msg-bubble">
+            Hi! I am your looner robot. Ask me anything and I’ll try to help!
+          </div>
+        </div>
+      </div>
+      <form class="chat-input-row" id="chatForm" autocomplete="off">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type your question..." autocomplete="off">
+        <button type="submit" class="send-chat-btn">Send</button>
+      </form>
+    </div>
+  </div>
+  <!-- Edit Profile Modal -->
+  <div class="edit-modal-bg" id="editModalBg">
+    <form class="edit-modal" id="editModal">
+      <button class="close-btn" id="closeModalBtn" title="Close">&times;</button>
+      <label for="modalName">Username:</label>
+      <input type="text" id="modalName" value="YourUsername">
+      <label for="modalPic">Profile Picture URL:</label>
+      <input type="text" id="modalPic" value="https://avatars.githubusercontent.com/u/9919?s=200&v=4">
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+  </div>
+  <script>
+    // Sidebar navigation logic
+    const navButtons = [
+      document.getElementById('btnOverview'),
+      document.getElementById('btnRepositories'),
+      document.getElementById('btnProjects'),
+      document.getElementById('btnStars'),
+      document.getElementById('btnSettings')
+    ];
+    const sections = [
+      document.getElementById('sectionOverview'),
+      document.getElementById('sectionRepositories'),
+      document.getElementById('sectionProjects'),
+      document.getElementById('sectionStars'),
+      document.getElementById('sectionSettings')
+    ];
+
+    navButtons.forEach((btn, idx) => {
+      btn.onclick = function() {
+        navButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sections.forEach((sec, i) => sec.style.display = i === idx ? '' : 'none');
+      };
+    });
+
+    // Edit Profile Modal Logic
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const profileName = document.getElementById('profileName');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const topAvatar = document.getElementById('topAvatar');
+    const editModalBg = document.getElementById('editModalBg');
+    const editModal = document.getElementById('editModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalName = document.getElementById('modalName');
+    const modalPic = document.getElementById('modalPic');
+    const overviewName = document.getElementById('overviewName');
+
+    editProfileBtn.onclick = () => {
+      editModalBg.style.display = 'flex';
+      modalName.value = profileName.textContent;
+      modalPic.value = profileAvatar.src;
+    };
+    profileAvatar.onclick = editProfileBtn.onclick;
+    topAvatar.onclick = editProfileBtn.onclick;
+
+    closeModalBtn.onclick = (e) => {
+      e.preventDefault();
+      editModalBg.style.display = 'none';
+    };
+    editModalBg.onclick = (e) => {
+      if (e.target === editModalBg) editModalBg.style.display = 'none';
+    };
+
+    editModal.onsubmit = (e) => {
+      e.preventDefault();
+      profileName.textContent = modalName.value;
+      overviewName.textContent = modalName.value;
+      profileAvatar.src = modalPic.value;
+      topAvatar.src = modalPic.value;
+      document.getElementById('settingsName').value = modalName.value;
+      document.getElementById('settingsPic').value = modalPic.value;
+      editModalBg.style.display = 'none';
+    };
+
+    // Settings form logic: change username/avatar from settings
+    document.getElementById('settingsForm').onsubmit = function(e) {
+      e.preventDefault();
+      const newName = document.getElementById('settingsName').value;
+      const newPic = document.getElementById('settingsPic').value;
+      profileName.textContent = newName;
+      overviewName.textContent = newName;
+      profileAvatar.src = newPic;
+      topAvatar.src = newPic;
+      modalName.value = newName;
+      modalPic.value = newPic;
+      alert('Profile updated!');
+    };
+
+    // CHAT ROBOT LOGIC
+    const openChatBtn = document.getElementById('openChatBtn');
+    const chatBg = document.getElementById('chatBg');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    // Show chat
+    openChatBtn.onclick = () => {
+      chatBg.style.display = 'flex';
+      chatInput.focus();
+    };
+    // Hide chat
+    closeChatBtn.onclick = () => {
+      chatBg.style.display = 'none';
+    };
+    chatBg.onclick = (e) => {
+      if (e.target === chatBg) chatBg.style.display = 'none';
+    };
+
+    // Simple robot answers logic!
+    function robotReply(userMsg) {
+      userMsg = userMsg.toLowerCase();
+      if (userMsg.includes('hello') || userMsg.includes('hi')) {
+        return "Hello! 👋 How can I help you today?";
+      }
+      if (userMsg.includes('name')) {
+        return "I'm your looner robot. You can call me Copilot!";
+      }
+      if (userMsg.includes('weather')) {
+        return "I'm not connected to real weather yet, but I hope it's nice where you are!";
+      }
+      if (userMsg.includes('how are you')) {
+        return "I'm always happy to help!";
+      }
+      if (userMsg.includes('profile')) {
+        return "You can edit your profile by clicking 'Edit Profile' or visiting the Settings section.";
+      }
+      if (userMsg.includes('repo') || userMsg.includes('repository')) {
+        return "Your repositories are listed in the 'Repositories' section on your dashboard.";
+      }
+      if (userMsg.includes('project')) {
+        return "You can view and manage your projects in the 'Projects' section.";
+      }
+      if (userMsg.includes('star')) {
+        return "Starred repositories are shown in the 'Stars' section.";
+      }
+      if (userMsg.includes('bye')) {
+        return "Goodbye! Ask me anything again soon!";
+      }
+      // Default fallback
+      return "I'm a robot here to help! Try asking about your profile, repos, or anything else.";
+    }
+
+    // Chat send
+    chatForm.onsubmit = function(e) {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      // User message
+      const userMsgDiv = document.createElement('div');
+      userMsgDiv.className = 'chat-msg user';
+      userMsgDiv.innerHTML = `<div class="msg-bubble">${text}</div>
+        <img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" class="avatar" alt="You">`;
+      chatMessages.appendChild(userMsgDiv);
+      // Robot answer
+      setTimeout(() => {
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'chat-msg robot';
+        botMsgDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="Robot" class="avatar">
+          <div class="msg-bubble">${robotReply(text)}</div>`;
+        chatMessages.appendChild(botMsgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 700);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      chatInput.value = '';
+    };
+  </script>
+</body>
+</html>
