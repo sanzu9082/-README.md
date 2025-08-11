@@ -391,13 +391,25 @@
       margin-top: -12px;
       margin-right: -8px;
     }
+    /* --- ADDED FOR SEARCH INFO BOX --- */
+    .search-info {
+      background: #e1eeff;
+      border: 1px solid #0969da;
+      border-radius: 8px;
+      padding: 18px 16px;
+      margin-bottom: 24px;
+      font-size: 1.07rem;
+      color: #24292f;
+      display: none;
+    }
+    .search-info strong { color: #0969da; }
   </style>
 </head>
 <body>
   <!-- Navbar -->
   <div class="navbar">
     <a href="#" class="logo">looner</a>
-    <input type="text" class="search-bar" placeholder="Search looner">
+    <input type="text" class="search-bar" id="searchBar" placeholder="Search looner">
     <img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" id="topAvatar" class="avatar" alt="Avatar">
   </div>
   <!-- Sidebar -->
@@ -419,6 +431,8 @@
   </div>
   <!-- Main Content -->
   <div class="main" id="mainContent">
+    <!-- SEARCH INFO BOX (added) -->
+    <div id="searchInfo" class="search-info"></div>
     <!-- Overview Section -->
     <div id="sectionOverview">
       <div class="section-title">Welcome to looner, <span id="overviewName">Silver</span>!</div>
@@ -532,12 +546,12 @@
       document.getElementById('sectionStars'),
       document.getElementById('sectionSettings')
     ];
-
     navButtons.forEach((btn, idx) => {
       btn.onclick = function() {
         navButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         sections.forEach((sec, i) => sec.style.display = i === idx ? '' : 'none');
+        document.getElementById('searchInfo').style.display = 'none'; // hide info on navigation
       };
     });
 
@@ -560,7 +574,6 @@
     };
     profileAvatar.onclick = editProfileBtn.onclick;
     topAvatar.onclick = editProfileBtn.onclick;
-
     closeModalBtn.onclick = (e) => {
       e.preventDefault();
       editModalBg.style.display = 'none';
@@ -568,7 +581,6 @@
     editModalBg.onclick = (e) => {
       if (e.target === editModalBg) editModalBg.style.display = 'none';
     };
-
     editModal.onsubmit = (e) => {
       e.preventDefault();
       profileName.textContent = modalName.value;
@@ -601,20 +613,16 @@
     const chatMessages = document.getElementById('chatMessages');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
-    // Show chat
     openChatBtn.onclick = () => {
       chatBg.style.display = 'flex';
       chatInput.focus();
     };
-    // Hide chat
     closeChatBtn.onclick = () => {
       chatBg.style.display = 'none';
     };
     chatBg.onclick = (e) => {
       if (e.target === chatBg) chatBg.style.display = 'none';
     };
-
-    // Simple robot answers logic!
     function robotReply(userMsg) {
       userMsg = userMsg.toLowerCase();
       if (userMsg.includes('hello') || userMsg.includes('hi')) {
@@ -647,19 +655,15 @@
       // Default fallback
       return "I'm a robot here to help! Try asking about your profile, repos, or anything else.";
     }
-
-    // Chat send
     chatForm.onsubmit = function(e) {
       e.preventDefault();
       const text = chatInput.value.trim();
       if (!text) return;
-      // User message
       const userMsgDiv = document.createElement('div');
       userMsgDiv.className = 'chat-msg user';
       userMsgDiv.innerHTML = `<div class="msg-bubble">${text}</div>
         <img src="https://avatars.githubusercontent.com/u/9919?s=200&v=4" class="avatar" alt="You">`;
       chatMessages.appendChild(userMsgDiv);
-      // Robot answer
       setTimeout(() => {
         const botMsgDiv = document.createElement('div');
         botMsgDiv.className = 'chat-msg robot';
@@ -671,6 +675,37 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
       chatInput.value = '';
     };
+
+    // SEARCH LOONER LOGIC (added!)
+    const searchBar = document.getElementById('searchBar');
+    const searchInfo = document.getElementById('searchInfo');
+    // Demo info for games/websites
+    const searchDB = {
+      "minecraft": { type: "Game", info: "Minecraft is a sandbox game developed by Mojang Studios. Players explore a blocky world, mine resources, build, and survive." },
+      "fortnite": { type: "Game", info: "Fortnite is an online battle royale game by Epic Games. Compete against 99 others to be the last one standing!" },
+      "roblox": { type: "Game", info: "Roblox is an online platform and game creation system where users make and play games made by others." },
+      "github": { type: "Website", info: "GitHub is a platform for hosting and collaborating on code projects, especially open source, using Git for version control." },
+      "youtube": { type: "Website", info: "YouTube is a video sharing platform for uploading and watching videos on any topic." },
+      "facebook": { type: "Website", info: "Facebook is a social network for connecting with friends, sharing photos, and joining groups." }
+      // Add more games/websites here!
+    };
+    searchBar.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        let query = searchBar.value.trim().toLowerCase();
+        if (query === "") {
+          searchInfo.style.display = "none";
+          return;
+        }
+        let result = searchDB[query];
+        if (result) {
+          searchInfo.innerHTML = `<strong>${query.charAt(0).toUpperCase()+query.slice(1)}</strong> (${result.type}): ${result.info}`;
+        } else {
+          searchInfo.innerHTML = `No info found for "<strong>${query}</strong>". Try searching another game or website!`;
+        }
+        searchInfo.style.display = "block";
+      }
+    });
   </script>
 </body>
 </html>
